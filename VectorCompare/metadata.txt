@@ -11,7 +11,7 @@ name=Polygon Comparator
 qgisMinimumVersion=2.14
 description=Comparaison of polygon layer - first for classifcation purposes
 version=0.1
-author=EOInt
+author=Gillian Milani
 email=gillian.milani@gmail.com
 
 about=light QGIS plugin for comparaison of two vector layer - done for classification validation purposes. The tool require the python panda library.
