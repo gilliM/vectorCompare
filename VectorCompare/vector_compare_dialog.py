@@ -29,11 +29,6 @@ import processing
 import copy
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
-from pandas.tools.plotting import table
-from pandas import DataFrame
-from matplotlib.colors import ListedColormap
-import matplotlib.path as mpath
-import matplotlib.patches as mpatches
 from pyplot_widget import pyPlotWidget
 import math
 
@@ -146,15 +141,13 @@ class VectorCompareDialog(QtGui.QDialog, FORM_CLASS):
                     if isinstance(area, float):
                         tot_res[j, i] += area
 
-
-
         tot_col = np.reshape(np.sum(tot_res, 0), (1, n_class))
         tot_row = np.reshape(np.sum(tot_res, 1), (n_class, 1))
 
         p_row = np.nan_to_num(np.diag(tot_res) / tot_row.T)
         p_col = np.nan_to_num(np.diag(tot_res) / tot_col)
 
-        outputFile = '/Users/gmilani/dev/temp/pdf_changemap.pdf'
+        outputFile = self.path + '/tmp/pdf_changemap.pdf'
         with PdfPages(outputFile) as pdf:
             c_plot = pyPlotWidget()
             ax = c_plot.figure.add_subplot(1, 1, 1)
@@ -184,11 +177,13 @@ class VectorCompareDialog(QtGui.QDialog, FORM_CLASS):
                 for j in range(t1.shape[1]):
                     t1[i, j] = self.round_sigfigs(t1[i, j], 3)
 
-            df = DataFrame(t1, columns = headers, dtype = np.float32)
-            table(ax, df, rowLabels = rowLabels, loc = 'upper right', colWidths = [1.0 / (n_class + 2)] * (n_class + 1))
+            t1[-1, -1] = self.round_sigfigs(overallAccuracy, 3)
+            the_table = ax.table(cellText = t1,
+                                  rowLabels = rowLabels,
+                                  colLabels = headers,
+                                  loc = 'top', bbox = [0.1, 0.6, 0.9, 0.4])
+
             c_plot.canvas.draw()
-
-
 
             txt1 = "Overall accuracy: %s     Kappa: %s" % (self.round_sigfigs(overallAccuracy, 3), "Kappa: %s" % self.round_sigfigs(kappa, 3))
             txt2 = "Precision: %s     Recall: %s     F1-Score: %s" % (average_precision, average_recall, f1_score)
@@ -206,7 +201,7 @@ The recall is the average of the user accuracies"""
             introduced by the unbalanced presence of certain classes."""
 
             c_plot.figure.text(.1, .5, txt1, fontsize = 15)
-            c_plot.figure.text(.1, .4, txt2, fontsize = 15)
+            c_plot.figure.text(.1, .45, txt2, fontsize = 15)
             c_plot.figure.text(.1, .3, txt3, fontsize = 10)
             c_plot.figure.text(.1, .25, txt4, fontsize = 10)
             c_plot.figure.text(.1, .2, txt5, fontsize = 10)
